@@ -1,40 +1,51 @@
-import axios, { type AxiosResponse } from "axios"
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import "./App.css"
-import { useState } from "react"
+import ProtectedRoute from "./components/ProtectedRoute"
+import { AuthProvider } from "./contexts/AuthContext"
+import UploadPage from "./pages/UploadPage"
+import LoginPage from "./pages/LoginPage"
+import PageNotFound from "./pages/PageNotFound"
+import RegisterPage from "./pages/RegisterPage"
+import { Provider } from "react-redux"
+import store from "./store"
+import AuthRedirect from "./components/AuthRedirect"
 
 function App() {
-  const SESSION_MANAGER_URL = "http://localhost:8000"
-  const [totalChunks, setTotalChunks] = useState(0)
-  const [uploadUrls, setUploadUrls] = useState<string[]>([])
-  const startSession = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files === null) {
-      return
-    }
-    const r: AxiosResponse<UploadSessionResponse> = await axios.post(
-      `${SESSION_MANAGER_URL}/upload/start`,
-      {
-        file_size: e.target.files[0].size,
-        user_id: 1,
-      }
-    )
-
-    if (r.status === 200) {
-      const nChunks: number = r.data.total_chunks
-      const uploadUrls: string[] = r.data.upload_urls
-
-      setTotalChunks(nChunks)
-      setUploadUrls(uploadUrls)
-    }
-  }
   return (
-    <>
-      <div className="flex flex-col">
-        <p>Upload a file</p>
-        <input type="file" onChange={startSession} />
-        <p>Number of chunks: {totalChunks}</p>
-        <p>Urls: {uploadUrls}</p>
-      </div>
-    </>
+    <Provider store={store}>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route
+              path="/register"
+              element={
+                <AuthRedirect>
+                  <RegisterPage />
+                </AuthRedirect>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <AuthRedirect>
+                  <LoginPage />
+                </AuthRedirect>
+              }
+            />
+            <Route
+              path="/upload"
+              element={
+                <ProtectedRoute>
+                  <UploadPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="*" element={<PageNotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </Provider>
   )
 }
 

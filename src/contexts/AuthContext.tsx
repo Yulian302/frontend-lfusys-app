@@ -1,9 +1,10 @@
-import axios from "axios"
 import { createContext, useContext, useEffect, useState } from "react"
+import api from "../api/client"
 
 interface AuthContextType {
   isAuthenticated: boolean
   isLoading: boolean
+  username: string
   login: (email: string, password: string) => Promise<boolean>
   logout: () => void
   register: (name: string, email: string, password: string) => Promise<boolean>
@@ -14,13 +15,14 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [username, setUsername] = useState("")
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await axios.get("http://localhost:8080/auth/me", {
-          withCredentials: true,
-        })
+        const response = await api.get("/auth/me")
+        setUsername(response.data.username)
+
         setIsAuthenticated(true)
       } catch {
         setIsAuthenticated(false)
@@ -33,14 +35,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post(
-        "http://localhost:8080/auth/login",
-        { email, password },
-        {
-          withCredentials: true,
-        }
-      )
+      const response = await api.post("/auth/login", { email, password })
       if (response.status === 200) {
+        const meResponse = await api.get("/auth/me")
+        setUsername(meResponse.data.username)
         setIsAuthenticated(true)
         return true
       }
@@ -52,15 +50,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const register = async (name: string, email: string, password: string) => {
     try {
-      const response = await axios.post(
-        "http://localhost:8080/auth/register",
-        {
-          name,
-          email,
-          password,
-        },
-        { withCredentials: true }
-      )
+      const response = await api.post("/auth/register", {
+        name,
+        email,
+        password,
+      })
       if (response.status === 201) {
         return true
       }
@@ -71,17 +65,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const logout = async () => {
-    await axios.post(
-      "http://localhost:8080/auth/logout",
-      {},
-      { withCredentials: true }
-    )
+    await api.post("/auth/logout", {})
     setIsAuthenticated(false)
+    setUsername("")
   }
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, login, logout, register, isLoading }}
+      value={{ isAuthenticated, login, logout, register, isLoading, username }}
     >
       {children}
     </AuthContext.Provider>

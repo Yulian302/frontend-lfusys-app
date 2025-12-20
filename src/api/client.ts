@@ -3,12 +3,17 @@ import { authState } from "./authState"
 
 let isRefreshing = false
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080",
+export const gateApi = axios.create({
+  baseURL: import.meta.env.VITE_GATEWAY_API || "http://localhost:8080",
   withCredentials: true,
 })
 
-api.interceptors.response.use(
+export const uploadsApi = axios.create({
+  baseURL: import.meta.env.VITE_UPLOADS_API_URL || "http://localhost:8081",
+  withCredentials: true,
+})
+
+gateApi.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
@@ -32,9 +37,9 @@ api.interceptors.response.use(
       isRefreshing = true
 
       try {
-        await api.post("/auth/refresh")
+        await gateApi.post("/auth/refresh")
         isRefreshing = false
-        return api(originalRequest)
+        return gateApi(originalRequest)
       } catch {
         isRefreshing = false
         authState.authFailed = true
@@ -45,5 +50,3 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-
-export default api

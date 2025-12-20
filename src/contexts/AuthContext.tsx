@@ -1,5 +1,6 @@
+import { isAxiosError } from "axios"
 import { createContext, useContext, useEffect, useState } from "react"
-import api from "../api/client"
+import { gateApi } from "../api/client"
 
 interface AuthContextType {
   isAuthenticated: boolean
@@ -20,11 +21,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await api.get("/auth/me")
+        const response = await gateApi.get("/auth/me")
         setUsername(response.data.username)
-
         setIsAuthenticated(true)
-      } catch {
+      } catch (error: unknown) {
+        if (
+          isAxiosError(error) &&
+          error.response?.status === 401 &&
+          error.response?.data?.message?.includes("token_expired")
+        ) {
+          try {
+            await gateApi.post("/auth/refresh")
+
+            const retryResponse = await gateApi.get("/auth/me")
+            setUsername(retryResponse.data.username)
+            setIsAuthenticated(true)
+          } catch (refreshError) {
+            console.log("Refresh failed:", refreshError)
+            setIsAuthenticated(false)
+          }
+        }
         setIsAuthenticated(false)
       } finally {
         setIsLoading(false)
@@ -35,9 +51,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await api.post("/auth/login", { email, password })
+      const response = await gateApi.post("/auth/login", { email, password })
       if (response.status === 200) {
-        const meResponse = await api.get("/auth/me")
+        const meResponse = await gateApi.get("/auth/me")
         setUsername(meResponse.data.username)
         setIsAuthenticated(true)
         return true
@@ -50,7 +66,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const register = async (name: string, email: string, password: string) => {
     try {
-      const response = await api.post("/auth/register", {
+      const response = await gateApi.post("/auth/register", {
         name,
         email,
         password,
@@ -65,7 +81,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const logout = async () => {
-    await api.post("/auth/logout", {})
+    await gateApi.post("/auth/logout", {})
     setIsAuthenticated(false)
     setUsername("")
   }

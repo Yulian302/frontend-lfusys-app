@@ -1,10 +1,12 @@
 import React from "react"
-import { useNavigate } from "react-router-dom"
+import DropDown from "./DropDown"
+import ThemeToggle from "./ThemeToggle"
 import { useAuth } from "../contexts/AuthContext"
+import { useNavigate } from "react-router-dom"
 
 const UserPanel = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate()
-  const { logout, username } = useAuth()
+  const { username, logout } = useAuth()
 
   const handleLogout = async () => {
     try {
@@ -16,17 +18,18 @@ const UserPanel = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="">
-      <header className="fixed top-0 left-0 h-12 bg-amber-700 w-full flex items-center justify-between px-4 z-10">
-        <span>Welcome, {username}</span>
-        <button
-          className="text-white hover:text-amber-100 transition-colors"
-          onClick={handleLogout}
-        >
-          Logout
-        </button>
+    <div className="w-full h-full">
+      <header className="fixed top-0 left-0 h-12 w-full flex items-center justify-between px-4 z-10 bg-(--bg) shadow-md">
+        <span>
+          {username && "Welcome, "}
+          {username}
+        </span>
+        <div className="flex items-center justify-between gap-4">
+          <ThemeToggle />
+          <DropDown logout={handleLogout} />
+        </div>
       </header>
-      <main className="flex justify-center items-center">{children}</main>
+      <main>{children}</main>
     </div>
   )
 }

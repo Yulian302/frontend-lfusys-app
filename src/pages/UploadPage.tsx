@@ -17,16 +17,15 @@ async function hashChunk(chunk: Blob): Promise<string> {
 
 const UploadPage = () => {
   const [isUploading, setIsUploading] = useState(false)
-  const startUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files === null || isUploading) {
-      return
-    }
+  const [status, setStatus] = useState<string | null>(null)
 
+  const startUpload = async (file: File, onProgress?: (p: number) => void) => {
+    if (isUploading) return
     setIsUploading(true)
 
     try {
       const uploadRequest: UploadSessionRequest = {
-        file_size: e.target.files[0].size,
+        file_size: file.size,
       }
       const r: AxiosResponse<UploadSessionResponse> = await gateApi.post(
         "/uploads/start",
@@ -35,9 +34,35 @@ const UploadPage = () => {
 
       if (r.status === 200) {
         const urls: string[] = r.data.upload_urls
-        const file = e.target.files[0]
         const chunks = createChunks(file)
-        await uploadAll(chunks, urls)
+
+        try {
+          setStatus("in_progress")
+
+          if (onProgress) {
+            let uploadedChunks = 0
+            const n = chunks.length
+
+            const wrappedUploadChunk = async (chunk: Blob, url: string) => {
+              await uploadChunk(chunk, url)
+              uploadedChunks += 1
+              onProgress(Math.round((uploadedChunks / n) * 100))
+            }
+
+            const promises = chunks.map((chunk, i) =>
+              wrappedUploadChunk(chunk, urls[i % urls.length])
+            )
+
+            await Promise.all(promises)
+          } else {
+            await uploadAll(chunks, urls)
+          }
+
+          setStatus("completed")
+        } catch (error) {
+          console.log(error)
+          setStatus("failed")
+        }
       }
     } finally {
       setIsUploading(false)
@@ -46,7 +71,8 @@ const UploadPage = () => {
 
   const createChunks = (
     file: File,
-    chunkSize: number = 5 * 1024 * 1024
+    // chunkSize: number = 5 * 1024 * 1024
+    chunkSize: number = 140 * 1024
   ): Blob[] => {
     const chunks: Blob[] = []
     let start = 0
@@ -78,15 +104,20 @@ const UploadPage = () => {
       })
       return response.status === 200 || response.status === 201
     } catch (error) {
-      console.log(error)
-      return false
+      console.error("Chunk upload failed", error)
+      throw new Error("Chunk upload failed")
     }
   }
 
   return (
     <div>
       <UserPanel>
-        <UploadForm startUpload={startUpload} isUploading={isUploading} />
+        <UploadForm
+          onUpload={startUpload}
+          isUploading={isUploading}
+          status={status}
+          setStatus={setStatus}
+        />
       </UserPanel>
     </div>
   )

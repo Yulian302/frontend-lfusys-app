@@ -2,6 +2,8 @@ import { isAxiosError } from "axios"
 import { createContext, useContext, useEffect, useState } from "react"
 import { gateApi } from "../api/client"
 
+import { retry } from "../api/retry"
+
 interface AuthContextType {
   isAuthenticated: boolean
   isLoading: boolean
@@ -50,32 +52,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   const login = async (email: string, password: string) => {
-    try {
-      const response = await gateApi.post("/auth/login", { email, password })
-      if (response.status === 200) {
-        const meResponse = await gateApi.get("/auth/me")
-        setUsername(meResponse.data.username)
-        setIsAuthenticated(true)
-        return true
-      }
-    } catch (error) {
-      console.error("Login failed:", error)
+    const response = await retry(
+      () => gateApi.post("/auth/login", { email, password }),
+      { maxAttempts: 3, delayMs: 300 }
+    )
+    if (response.status === 200) {
+      const meResponse = await gateApi.get("/auth/me")
+      setUsername(meResponse.data.username)
+      setIsAuthenticated(true)
+      return true
     }
     return false
   }
 
   const register = async (name: string, email: string, password: string) => {
-    try {
-      const response = await gateApi.post("/auth/register", {
-        name,
-        email,
-        password,
-      })
-      if (response.status === 201) {
-        return true
+    const response = await retry(
+      () =>
+        gateApi.post("/auth/register", {
+          name,
+          email,
+          password,
+        }),
+      {
+        maxAttempts: 3,
+        delayMs: 300,
       }
-    } catch (error) {
-      console.log(error)
+    )
+    if (response.status === 201) {
+      return true
     }
     return false
   }

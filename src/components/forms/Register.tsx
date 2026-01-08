@@ -1,141 +1,142 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
+import { useForm, type SubmitHandler } from "react-hook-form"
+import {
+  CheckBoxField,
+  ErrorField,
+  InputField,
+  type RegisterFormIF,
+} from "./Shared"
+import { handleError } from "../../api/errors"
 
 const RegisterForm = () => {
   const navigate = useNavigate()
 
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [pass, setPass] = useState("")
-  const [repeatPass, setRepeatPass] = useState("")
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | undefined>(undefined)
 
-  const { register, login } = useAuth()
+  const { register: signup, login } = useAuth()
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setError(null)
+  const {
+    register,
+    watch,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      "Repeat Password": "",
+      "Show Password": "",
+    },
+  })
 
-    if (pass !== repeatPass) {
-      setError("Passwords do not match")
-      return
-    }
+  const onSubmit: SubmitHandler<RegisterFormIF> = async (data) => {
+    setError(undefined)
 
     try {
       setLoading(true)
-      const isRegistered = await register(name, email, pass)
+      const isRegistered = await signup(data.name, data.email, data.password)
       if (!isRegistered) {
         setError("Registration failed. Please try again.")
         return
       }
 
-      const isLoggedIn = await login(email, pass)
+      const isLoggedIn = await login(data.email, data.password)
       if (isLoggedIn) {
         navigate("/upload")
-      } else {
-        setError("Registered but login failed. Please login manually.")
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      setError(err?.message ?? "Network error")
+    } catch (err: unknown) {
+      handleError(err, setError)
     } finally {
       setLoading(false)
     }
   }
 
+  const password = watch("password")
+  const showPassword = watch("Show Password")
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <form
-        className="w-full max-w-md bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-        onSubmit={handleSubmit}
+        className="w-full max-w-md bg-white shadow-[0_2px_4px_rgba(0,0,0,0.1)] border border-gray-100 rounded px-8 pt-6 pb-8 mb-4"
+        onSubmit={handleSubmit(onSubmit)}
       >
-        {error && (
-          <div
-            role="alert"
-            aria-live="assertive"
-            className="mb-4 text-red-700 bg-red-100 border border-red-200 p-3 rounded"
-          >
-            {error}
-          </div>
+        <ErrorField error={error} />
+        <InputField
+          label="name"
+          placeholder="Username"
+          register={register}
+          required={{ value: true, message: "Username is required" }}
+          minLength={{
+            value: 5,
+            message: "Username must be at least 5 chars long",
+          }}
+          maxLength={{
+            value: 30,
+            message: "Username is too long. Please provide a shorter value",
+          }}
+          error={errors.name}
+        />
+        <ErrorField error={errors.name} />
+
+        <InputField
+          label="email"
+          placeholder="Email"
+          register={register}
+          required={{ value: true, message: "Email is required" }}
+          minLength={{
+            value: 8,
+            message: "Email must be at least 8 chars long",
+          }}
+          maxLength={{
+            value: 80,
+            message: "Email is too long. Please provide a shorter value",
+          }}
+          error={errors.email}
+        />
+        <ErrorField error={errors.email} />
+
+        <InputField
+          label="password"
+          placeholder="******************"
+          register={register}
+          required={{ value: true, message: "Password is required" }}
+          minLength={{
+            value: 8,
+            message: "Password must be 8-20 chars long",
+          }}
+          maxLength={{
+            value: 20,
+            message: "Password must be 8-20 chars long",
+          }}
+          error={errors.password}
+          type={showPassword ? "text" : "password"}
+        />
+        <ErrorField error={errors.password} />
+
+        <CheckBoxField label="Show Password" register={register} />
+
+        {password && (
+          <>
+            <InputField
+              label="Repeat Password"
+              placeholder="repeat password"
+              register={register}
+              required={{ value: true, message: "Passwords must match" }}
+              error={errors.password}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              validate={(value: any) =>
+                value === password || "Passwords do not match"
+              }
+              type={showPassword ? "text" : "password"}
+            />
+            <ErrorField error={errors["Repeat Password"]} />
+          </>
         )}
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="username"
-          >
-            Username
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="username"
-            type="text"
-            minLength={8}
-            required
-            placeholder="Username"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setName(e.target.value)
-            }
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="email"
-          >
-            Email
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="email"
-            type="email"
-            minLength={8}
-            required
-            placeholder="Email"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setEmail(e.target.value)
-            }
-          />
-        </div>
-        <div>
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="password"
-          >
-            Password
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-            id="password"
-            type="password"
-            minLength={8}
-            required
-            placeholder="******************"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setPass(e.target.value)
-            }
-          />
-        </div>
-        <div>
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="repeatPassword"
-          >
-            Repeat Password
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-            id="repeatPassword"
-            type="password"
-            minLength={8}
-            required
-            placeholder="******************"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setRepeatPass(e.target.value)
-            }
-          />
-        </div>
+
         <div className="flex items-center justify-between">
           <button
             className={`bg-blue-500 ${

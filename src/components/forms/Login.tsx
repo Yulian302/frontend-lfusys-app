@@ -50,7 +50,7 @@ const LoginForm = () => {
   const showPassword = watch("Show Password")
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="flex flex-col items-center justify-center p-4 w-full self-center">
       <form
         className="w-full max-w-md bg-white shadow-[0_2px_4px_rgba(0,0,0,0.1)] border border-gray-100 rounded px-8 pt-6 pb-8 mb-4"
         onSubmit={handleSubmit(onSubmit)}

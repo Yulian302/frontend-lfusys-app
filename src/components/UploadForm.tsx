@@ -127,7 +127,7 @@ export default function UploadForm({
   }
 
   return (
-    <div className="max-w-xl mx-auto">
+    <div className="max-w-xl mx-auto self-center">
       <input
         ref={inputRef}
         type="file"

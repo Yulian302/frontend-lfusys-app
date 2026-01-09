@@ -3,6 +3,7 @@
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
+  padding: 0;
   font-weight: 400;
 
   font-synthesis: none;
@@ -35,12 +36,6 @@ a {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-
-
   background: var(--bg);
   color: var(--text);
   transition: background-color .2s ease, color .2s ease;

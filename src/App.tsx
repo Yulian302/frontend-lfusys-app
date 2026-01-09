@@ -9,6 +9,7 @@ import RegisterPage from "./pages/RegisterPage"
 import { Provider } from "react-redux"
 import store from "./store"
 import AuthRedirect from "./components/AuthRedirect"
+import FilesPage from "./pages/FilesPage"
 
 function App() {
   return (
@@ -37,6 +38,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <UploadPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/files"
+              element={
+                <ProtectedRoute>
+                  <FilesPage />
                 </ProtectedRoute>
               }
             />

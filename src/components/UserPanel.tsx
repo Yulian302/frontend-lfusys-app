@@ -18,8 +18,8 @@ const UserPanel = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="w-full h-full">
-      <header className="fixed top-0 left-0 h-12 w-full flex items-center justify-between px-4 z-10 bg-(--bg) shadow-md">
+    <div className="flex flex-col min-h-screen min-w-screen">
+      <header className="top-0 left-0 right-0 h-12 w-full flex items-center justify-between px-4 z-10 bg-(--bg) shadow-md">
         <span>
           {username && "Welcome, "}
           {username}
@@ -29,7 +29,8 @@ const UserPanel = ({ children }: { children: React.ReactNode }) => {
           <DropDown logout={handleLogout} />
         </div>
       </header>
-      <main>{children}</main>
+
+      <main className="flex-1 flex">{children}</main>
     </div>
   )
 }

@@ -1,4 +1,5 @@
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react"
+import { Menu, MenuButton, MenuItems } from "@headlessui/react"
+import Item from "./menu/MenuItem"
 
 type DropDownProps = {
   logout: () => Promise<void>
@@ -17,6 +18,40 @@ export default function DropDown({
     .join("")
     .toUpperCase()
     .slice(0, 2)
+
+  const menuItems: MenuItemIF[] = [
+    {
+      title: "Files",
+      link: "/files",
+    },
+    {
+      title: "Account Settings",
+      link: "/settings",
+    },
+    {
+      title: "Support",
+      link: "/support",
+    },
+    {
+      title: "License",
+      link: "/license",
+    },
+    {
+      title: "Sign Out",
+      link: "/signout",
+      onClick: logout,
+    },
+  ]
+
+  const items = menuItems.map((item: MenuItemIF, idx: number) => (
+    <Item
+      title={item.title}
+      link={item.link}
+      key={idx}
+      handleClick={item.onClick}
+    />
+  ))
+
   return (
     <Menu as="div" className="relative inline-block">
       <MenuButton className="cursor-pointer inline-flex items-center gap-2 rounded-full p-1.5 text-sm font-semibold text-white inset-ring-1 inset-ring-white/5 ">
@@ -37,41 +72,8 @@ export default function DropDown({
         transition
         className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-(--bg) shadow-2xl outline-1 -outline-offset-1 outline-white/10 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
       >
-        <div className="py-1">
-          <MenuItem>
-            <a
-              href="#"
-              className="block px-4 py-2 text-sm data-focus:bg-white/5 data-focus:text-white data-focus:outline-hidden"
-            >
-              Account settings
-            </a>
-          </MenuItem>
-          <MenuItem>
-            <a
-              href="#"
-              className="block px-4 py-2 text-sm data-focus:bg-white/5 data-focus:text-white data-focus:outline-hidden"
-            >
-              Support
-            </a>
-          </MenuItem>
-          <MenuItem>
-            <a
-              href="#"
-              className="block px-4 py-2 text-sm data-focus:bg-white/5 data-focus:text-white data-focus:outline-hidden"
-            >
-              License
-            </a>
-          </MenuItem>
-          <div>
-            <MenuItem>
-              <button
-                className="block w-full px-4 py-2 text-left text-sm data-focus:bg-white/5 data-focus:text-white data-focus:outline-hidden"
-                onClick={logout}
-              >
-                Sign out
-              </button>
-            </MenuItem>
-          </div>
+        <div className="py-1 [&>a]:menuitem">
+          <div>{items}</div>
         </div>
       </MenuItems>
     </Menu>

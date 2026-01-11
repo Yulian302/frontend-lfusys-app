@@ -50,12 +50,12 @@ export function InputField<T extends LoginFormIF | RegisterFormIF>({
 }: InputProps<T>) {
   return (
     <div className="mb-4">
-      <label className="block text-gray-700 text-sm font-bold mb-2">
+      <label className="block font-semibold mb-2">
         {label.charAt(0).toUpperCase() + label.slice(1)}
       </label>
       <input
         className={clsx(
-          "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline",
+          "shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline",
           error && "border border-red-700",
           error && "border-l-4 border-l-red-500 pl-3 rounded",
           "focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]"
@@ -79,12 +79,13 @@ export function CheckBoxField<
   T extends LoginFormIF | RegisterFormIF | ExtraFormIF
 >({ label, required, register }: InputProps<T>) {
   return (
-    <div className="flex items-center gap-1 mb-2 text-gray-700 font-">
+    <div className="text-lg flex items-center gap-2 mb-2">
       <input
         type="checkbox"
         {...register(label, {
           required,
         })}
+        className="size-5 sm:size-4"
       />
       <label>{label}</label>
     </div>

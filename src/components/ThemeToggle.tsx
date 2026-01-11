@@ -8,7 +8,7 @@ const ThemeToggle = () => {
 
   return (
     <div
-      className="bg-transparent border-none cursor-pointer"
+      className="text-(--reverse) bg-transparent border-none cursor-pointer scale-150 sm:scale-100"
       aria-label="Toggle theme"
       onClick={toggle}
     >

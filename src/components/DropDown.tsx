@@ -7,7 +7,7 @@ type DropDownProps = {
   userAvatar?: string
 }
 
-export default function DropDown({
+export default function UserMenu({
   logout,
   userName = "User",
   userAvatar,

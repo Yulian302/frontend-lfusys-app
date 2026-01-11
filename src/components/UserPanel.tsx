@@ -1,5 +1,5 @@
 import React from "react"
-import DropDown from "./DropDown"
+import UserMenu from "./DropDown"
 import ThemeToggle from "./ThemeToggle"
 import { useAuth } from "../contexts/AuthContext"
 import { useNavigate } from "react-router-dom"
@@ -19,14 +19,14 @@ const UserPanel = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="flex flex-col min-h-screen min-w-screen">
-      <header className="top-0 left-0 right-0 h-12 w-full flex items-center justify-between px-4 z-10 bg-(--bg) shadow-md">
+      <header className="top-0 left-0 right-0 h-24 sm:h-12 w-full flex items-center justify-between px-4 z-10 bg-(--bg) shadow-md">
         <span>
           {username && "Welcome, "}
           {username}
         </span>
         <div className="flex items-center justify-between gap-4">
           <ThemeToggle />
-          <DropDown logout={handleLogout} />
+          {username && <UserMenu logout={handleLogout} />}
         </div>
       </header>
 

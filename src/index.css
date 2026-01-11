@@ -18,15 +18,17 @@
   --muted: #6b7280;
   --primary: #2563eb;
   --secondary: #f2f2f2;
+  --reverse: #071023;
 }
 
 [data-theme="dark"]{
   --bg: #0b1220;
   --surface: #071023;
-  --text: #e6eef8;
+  --text: #0f1724;
   --muted: #94a3b8;
   --primary: #60a5fa;
   --secondary: #8a93a4;
+  --reverse: #ffffff;
 }
 
 a {

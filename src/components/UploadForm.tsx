@@ -50,6 +50,7 @@ export default function UploadForm({
 
   function handleFiles(files: FileList | null) {
     setError(null)
+
     if (!files || files.length === 0) return
     setFile(files[0])
     setProgress(0)
@@ -88,7 +89,6 @@ export default function UploadForm({
       if (onUpload) {
         await onUpload(file, (p) => setProgress(Math.round(p)))
       } else {
-        // Fallback: fake upload progress to show UI behavior.
         await new Promise<void>((resolve) => {
           let p = 0
           const t = setInterval(() => {
@@ -106,11 +106,20 @@ export default function UploadForm({
       setError(err?.message || "Upload failed")
     } finally {
       setUploading(false)
+
+      if (inputRef.current) {
+        inputRef.current.value = ""
+      }
     }
   }
 
   function handleRemove(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation()
+
+    if (inputRef.current) {
+      inputRef.current.value = ""
+    }
+
     setFile(null)
     setProgress(0)
     setError(null)

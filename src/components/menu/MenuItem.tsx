@@ -12,7 +12,7 @@ const Item = ({ title, link, handleClick }: MenuItemProps) => {
     <MenuItem>
       <Link
         to={link}
-        className="block px-4 py-2 text-sm data-focus:bg-white/5 data-focus:text-white data-focus:outline-hidden"
+        className="block px-4 py-2 text-sm data-focus:bg-(--reverse)/10"
         onClick={handleClick}
       >
         {title}

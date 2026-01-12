@@ -11,6 +11,7 @@ import {
   InputField,
   type LoginFormIF,
 } from "./Shared"
+import GithubLogin from "../github/Login"
 
 const LoginForm = () => {
   const navigate = useNavigate()
@@ -53,7 +54,6 @@ const LoginForm = () => {
   return (
     <FormTemplate onSubmit={handleSubmit(onSubmit)}>
       <ErrorField error={error} />
-
       <InputField
         label="email"
         placeholder="Email"
@@ -70,7 +70,6 @@ const LoginForm = () => {
         error={errors.email}
       />
       <ErrorField error={errors.email} />
-
       <InputField
         label="password"
         placeholder="******************"
@@ -88,9 +87,7 @@ const LoginForm = () => {
         type={showPassword ? "text" : "password"}
       />
       <ErrorField error={errors.password} />
-
       <CheckBoxField label="Show Password" register={register} />
-
       <div className="flex flex-col gap-2 sm:flex-row items-center justify-between">
         <button
           className={`bg-blue-500 ${
@@ -108,6 +105,12 @@ const LoginForm = () => {
           </Link>
         </div>
       </div>
+      <div className="relative flex items-center my-5">
+        <div className="grow border-t border-gray-300"></div>
+        <span className="mx-4 text-gray-500 text-sm">or</span>
+        <div className="grow border-t border-gray-300"></div>
+      </div>
+      <GithubLogin />
     </FormTemplate>
   )
 }

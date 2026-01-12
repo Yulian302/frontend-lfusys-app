@@ -11,6 +11,7 @@ import {
   InputField,
   type LoginFormIF,
 } from "./Shared"
+import GithubLogin from "../github/Login"
 
 const LoginForm = () => {
   const navigate = useNavigate()
@@ -53,7 +54,6 @@ const LoginForm = () => {
   return (
     <FormTemplate onSubmit={handleSubmit(onSubmit)}>
       <ErrorField error={error} />
-
       <InputField
         label="email"
         placeholder="Email"
@@ -70,7 +70,6 @@ const LoginForm = () => {
         error={errors.email}
       />
       <ErrorField error={errors.email} />
-
       <InputField
         label="password"
         placeholder="******************"
@@ -88,15 +87,13 @@ const LoginForm = () => {
         type={showPassword ? "text" : "password"}
       />
       <ErrorField error={errors.password} />
-
       <CheckBoxField label="Show Password" register={register} />
-
       <div className="flex flex-col gap-2 sm:flex-row items-center justify-between">
         <button
           className={`bg-blue-500 ${
             loading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
           }
-            font-bold cursor-pointer text-white py-2 px-4 rounded-full hover:scale-105 ease-in-out hover:bg-blue-500/10 focus:outline-none focus:shadow-outline`}
+            btn_primary hover:bg-blue-500/10`}
           type="submit"
           disabled={loading}
         >
@@ -107,6 +104,14 @@ const LoginForm = () => {
             Don't have an account? Sign Up
           </Link>
         </div>
+      </div>
+      <div className="relative flex items-center my-5">
+        <div className="grow border-t border-gray-300"></div>
+        <span className="mx-4 text-gray-500 text-sm">or</span>
+        <div className="grow border-t border-gray-300"></div>
+      </div>
+      <div className="flex justify-center">
+        <GithubLogin />
       </div>
     </FormTemplate>
   )

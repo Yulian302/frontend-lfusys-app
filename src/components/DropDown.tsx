@@ -21,20 +21,12 @@ export default function UserMenu({
 
   const menuItems: MenuItemIF[] = [
     {
+      title: "Upload",
+      link: "/upload",
+    },
+    {
       title: "Files",
       link: "/files",
-    },
-    {
-      title: "Account Settings",
-      link: "/settings",
-    },
-    {
-      title: "Support",
-      link: "/support",
-    },
-    {
-      title: "License",
-      link: "/license",
     },
     {
       title: "Sign Out",
@@ -70,7 +62,7 @@ export default function UserMenu({
 
       <MenuItems
         transition
-        className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-(--bg) shadow-2xl outline-1 -outline-offset-1 outline-white/10 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
+        className="bg-(--bg) text-(--reverse) absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md shadow-2xl outline-1 -outline-offset-1 outline-white/10 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
       >
         <div className="py-1 [&>a]:menuitem">
           <div>{items}</div>

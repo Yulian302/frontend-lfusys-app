@@ -11,7 +11,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-/* light theme */
+  /* light theme */
   --bg: #ffffff;
   --surface: #ffffff;
   --text: #0f1724;
@@ -21,7 +21,7 @@
   --reverse: #071023;
 }
 
-[data-theme="dark"]{
+[data-theme="dark"] {
   --bg: #0b1220;
   --surface: #071023;
   --text: #0f1724;
@@ -40,10 +40,16 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  transition: background-color .2s ease, color .2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+}
+
+@layer components {
+  .btn_primary {
+    @apply font-bold cursor-pointer text-white py-2 px-4 rounded-full hover:scale-105 ease-in-out focus:outline-none;
+  }
 }

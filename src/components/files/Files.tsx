@@ -81,7 +81,7 @@ function FileTable({ files, onClick }: FileTableProps) {
   }))
 
   return (
-    <div className="h-max border rounded-lg overflow-hidden m-12 w-full">
+    <div className="h-max border rounded-lg overflow-hidden m-12 w-full self-start">
       <div className="overflow-x-auto">
         <table className="w-full bg-white">
           <thead>

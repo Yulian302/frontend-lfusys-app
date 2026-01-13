@@ -5,13 +5,13 @@ import { useAuth } from "../../contexts/AuthContext"
 
 import { handleError } from "../../api/errors"
 import FormTemplate from "./FormTemplate"
+import OAuth from "./OAuth"
 import {
   CheckBoxField,
   ErrorField,
   InputField,
   type LoginFormIF,
 } from "./Shared"
-import GithubLogin from "../github/Login"
 
 const LoginForm = () => {
   const navigate = useNavigate()
@@ -110,9 +110,7 @@ const LoginForm = () => {
         <span className="mx-4 text-gray-500 text-sm">or</span>
         <div className="grow border-t border-gray-300"></div>
       </div>
-      <div className="flex justify-center">
-        <GithubLogin />
-      </div>
+      <OAuth />
     </FormTemplate>
   )
 }

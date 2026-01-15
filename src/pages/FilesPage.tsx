@@ -4,45 +4,72 @@ import UserPanel from "../components/UserPanel"
 import { gateApi } from "../api/client"
 import { ClipLoader } from "react-spinners"
 import { Link } from "react-router-dom"
+import { isAxiosError } from "axios"
+import WarningBanner from "../components/WarningBanner"
 
 const FilesPage = () => {
   const [files, setFiles] = useState<FileInfo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [rateLimited, setRateLimited] = useState(false)
+
+  const getFiles = async (mounted: boolean) => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const response = await gateApi.get("/files/")
+
+      if (mounted && response.status === 200) {
+        setFiles(response.data.Files)
+      }
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === 429) {
+          setRateLimited(true)
+          const retryAfter = Number(error.response.headers["retry-after"]) || 5
+
+          setTimeout(() => {
+            setRateLimited(false)
+          }, retryAfter * 1000)
+        }
+      }
+      if (mounted) {
+        console.error("Error fetching files:", error)
+      }
+    } finally {
+      if (mounted) {
+        setLoading(false)
+      }
+    }
+  }
 
   useEffect(() => {
     let mounted: boolean = true
 
-    const getFiles = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-
-        const response = await gateApi.get("/files/")
-
-        if (mounted && response.status === 200) {
-          setFiles(response.data.Files)
-        }
-      } catch (error) {
-        if (mounted) {
-          console.error("Error fetching files:", error)
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false)
-        }
-      }
-    }
-
-    getFiles()
+    getFiles(mounted)
 
     return () => {
       mounted = false
     }
   }, [])
 
+  const refreshFiles = () => {
+    if (rateLimited) {
+      return
+    }
+
+    getFiles(true)
+  }
+
   return (
     <UserPanel>
+      <WarningBanner
+        message="⚠ You are refreshing too often. Please wait…"
+        visible={rateLimited}
+        onClose={() => setRateLimited(false)}
+        duration={5000}
+      />
       {loading ? (
         <div className="flex flex-col items-center justify-center h-64 w-full">
           <ClipLoader size={40} color="#3b82f6" />
@@ -70,7 +97,11 @@ const FilesPage = () => {
           </Link>
         </div>
       ) : (
-        <FileDashboard files={files} />
+        <FileDashboard
+          files={files}
+          onRefresh={refreshFiles}
+          disabled={rateLimited}
+        />
       )}
     </UserPanel>
   )

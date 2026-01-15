@@ -7,7 +7,10 @@ import {
   AiFillFileText,
   AiFillFileZip,
 } from "react-icons/ai"
+import { IoMdRefresh } from "react-icons/io"
+
 import DropDownMenu from "../menu/DropDownMenu"
+import clsx from "clsx"
 
 const getIcon = (type: string) => {
   switch (type) {
@@ -52,9 +55,11 @@ interface FileTableProps {
   files: FileInfo[]
   onClick?: (file: FileInfo) => void
   onAction?: (action: string, file: FileInfo) => void
+  onRefresh: () => void
+  disabled: boolean
 }
 
-function FileTable({ files, onClick }: FileTableProps) {
+function FileTable({ files, onClick, onRefresh, disabled }: FileTableProps) {
   if (files.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -81,70 +86,80 @@ function FileTable({ files, onClick }: FileTableProps) {
   }))
 
   return (
-    <div className="h-max border rounded-lg overflow-hidden m-12 w-full self-start">
-      <div className="overflow-x-auto">
-        <table className="w-full bg-white">
-          <thead>
-            <tr className="border-b bg-gray-50">
-              {headers.map((header) => (
-                <th
-                  key={header.key}
-                  className={`
+    <div className="h-max m-12 w-full self-start flex flex-col gap-2">
+      <IoMdRefresh
+        size={20}
+        className={clsx(
+          "cursor-pointer text-(--reverse) hover:scale-105 ease-in-out",
+          disabled && "text-gray-500 cursor-default! hover:scale-none"
+        )}
+        onClick={() => onRefresh()}
+      />
+      <div className="border rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full bg-white">
+            <thead>
+              <tr className="border-b bg-gray-50">
+                {headers.map((header) => (
+                  <th
+                    key={header.key}
+                    className={`
                     text-left py-3 px-4 font-semibold text-gray-700 text-sm
                     ${header.width}
                   `}
-                >
-                  {header.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
+                  >
+                    {header.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
 
-          <tbody>
-            {rows.map((row) => {
-              const Icon = getIcon(row.file.type || "default")
-              return (
-                <tr
-                  key={row.id}
-                  onClick={() => onClick?.(row.file)}
-                  className="border-b hover:bg-(--secondary) transition cursor-pointer group"
-                >
-                  {/* Name Column */}
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-3">
-                      <Icon className="text-xl text-blue-500 shrink-0" />
-                      <span className="text-sm text-gray-900 truncate hover:underline">
-                        {row.name}
-                      </span>
-                    </div>
-                  </td>
+            <tbody>
+              {rows.map((row) => {
+                const Icon = getIcon(row.file.type || "default")
+                return (
+                  <tr
+                    key={row.id}
+                    onClick={() => onClick?.(row.file)}
+                    className="border-b hover:bg-(--secondary) transition cursor-pointer group"
+                  >
+                    {/* Name Column */}
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-3">
+                        <Icon className="text-xl text-blue-500 shrink-0" />
+                        <span className="text-sm text-gray-900 truncate hover:underline">
+                          {row.name}
+                        </span>
+                      </div>
+                    </td>
 
-                  {/* Type Column */}
-                  <td className="py-3 px-4 text-sm text-gray-600">
-                    {row.type}
-                  </td>
+                    {/* Type Column */}
+                    <td className="py-3 px-4 text-sm text-gray-600">
+                      {row.type}
+                    </td>
 
-                  {/* Size Column */}
-                  <td className="py-3 px-4 text-sm text-gray-600">
-                    {row.size}
-                  </td>
+                    {/* Size Column */}
+                    <td className="py-3 px-4 text-sm text-gray-600">
+                      {row.size}
+                    </td>
 
-                  {/* Created Column */}
-                  <td className="py-3 px-4 text-sm text-gray-600">
-                    {row.created}
-                  </td>
+                    {/* Created Column */}
+                    <td className="py-3 px-4 text-sm text-gray-600">
+                      {row.created}
+                    </td>
 
-                  {/* Actions Column */}
-                  <td className="py-3 px-4">
-                    <div className="flex justify-center">
-                      <DropDownMenu />
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+                    {/* Actions Column */}
+                    <td className="py-3 px-4">
+                      <div className="flex justify-center">
+                        <DropDownMenu />
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

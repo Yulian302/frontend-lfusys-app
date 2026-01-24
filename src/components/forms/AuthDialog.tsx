@@ -7,7 +7,6 @@ import RegisterForm from "./Register"
 interface LoginDialogProps {
   isOpen: boolean
   onClose: () => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   showCloseButton?: boolean
   isLogin: boolean
   changeAuthType: () => void

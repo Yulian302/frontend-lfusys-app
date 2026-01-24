@@ -1,15 +1,15 @@
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { useAuth } from "../../contexts/AuthContext"
 import { useForm, type SubmitHandler } from "react-hook-form"
+import { useNavigate } from "react-router-dom"
+import { handleError } from "../../api/errors"
+import { useAuth } from "../../contexts/AuthContext"
+import FormTemplate from "./FormTemplate"
 import {
   CheckBoxField,
   ErrorField,
   InputField,
   type RegisterFormIF,
 } from "./Shared"
-import { handleError } from "../../api/errors"
-import FormTemplate from "./FormTemplate"
 
 const RegisterForm = () => {
   const navigate = useNavigate()
@@ -145,11 +145,6 @@ const RegisterForm = () => {
         >
           {loading ? "Signing Up..." : "Sign Up"}
         </button>
-        <div className="text-base">
-          <Link className="text-blue-500 hover:text-blue-800" to={"/login"}>
-            Back to login
-          </Link>
-        </div>
       </div>
     </FormTemplate>
   )

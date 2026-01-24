@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/AuthContext"
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth()
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />
+  return isAuthenticated ? <>{children}</> : <Navigate to="/" />
 }
 
 export default ProtectedRoute

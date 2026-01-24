@@ -5,12 +5,16 @@ type DropDownProps = {
   logout: () => Promise<void>
   userName?: string
   userAvatar?: string
+  isAuthenticated: boolean
+  openLoginDialog: () => void
 }
 
 export default function UserMenu({
   logout,
   userName = "User",
   userAvatar,
+  isAuthenticated,
+  openLoginDialog,
 }: DropDownProps) {
   const userInitials = userName
     .split(" ")
@@ -30,7 +34,7 @@ export default function UserMenu({
     },
     {
       title: "Sign Out",
-      link: "/signout",
+      link: "/",
       onClick: logout,
     },
   ]
@@ -43,6 +47,19 @@ export default function UserMenu({
       handleClick={item.onClick}
     />
   ))
+
+  if (!isAuthenticated) {
+    return (
+      <button
+        onClick={openLoginDialog}
+        className="cursor-pointer inline-flex items-center gap-2 rounded-full p-1.5 text-sm font-semibold text-white inset-ring-1 inset-ring-white/5 hover:bg-white/10 transition-colors"
+      >
+        <div className="flex size-8 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-purple-600 font-medium">
+          👤
+        </div>
+      </button>
+    )
+  }
 
   return (
     <Menu as="div" className="relative inline-block">

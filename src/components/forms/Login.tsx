@@ -1,11 +1,10 @@
 import { useState } from "react"
 import { useForm, type SubmitHandler } from "react-hook-form"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
 
 import { handleError } from "../../api/errors"
 import FormTemplate from "./FormTemplate"
-import OAuth from "./OAuth"
 import {
   CheckBoxField,
   ErrorField,
@@ -99,18 +98,7 @@ const LoginForm = () => {
         >
           {loading ? "Signing in..." : "Sign In"}
         </button>
-        <div className="text-base">
-          <Link className="text-blue-500 hover:text-blue-800" to={"/register"}>
-            Don't have an account? Sign Up
-          </Link>
-        </div>
       </div>
-      <div className="relative flex items-center my-5">
-        <div className="grow border-t border-gray-300"></div>
-        <span className="mx-4 text-gray-500 text-sm">or</span>
-        <div className="grow border-t border-gray-300"></div>
-      </div>
-      <OAuth />
     </FormTemplate>
   )
 }

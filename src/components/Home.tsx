@@ -15,7 +15,7 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="flex flex-col gap-6"
           >
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
               LFU Sys
             </h1>
             <p className="text-lg sm:text-xl opacity-80 leading-relaxed">

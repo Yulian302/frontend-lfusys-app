@@ -29,7 +29,7 @@ const UserPanel = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen min-w-screen">
+    <div className="flex flex-col min-h-screen min-w-full">
       <header className="text-(--reverse) top-0 left-0 right-0 h-24 sm:h-12 w-full flex items-center justify-between px-4 z-10 bg-(--bg) shadow-md">
         <span>Welcome, {username ? username : "Guest"}</span>
         <div className="flex items-center justify-between gap-4">

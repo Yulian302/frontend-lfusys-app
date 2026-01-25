@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* =========================
+   Fonts (self-hosted)
+   ========================= */
 @font-face {
   font-family: "Inter";
   src: url("/fonts/inter-variable.woff2") format("woff2");
@@ -16,23 +19,26 @@
   font-display: swap;
 }
 
+/* =========================
+   Design tokens
+   ========================= */
 @theme {
   --font-sans: "Inter", system-ui, sans-serif;
   --font-display: "Space Grotesk", system-ui, sans-serif;
 }
 
+/* =========================
+   Global variables
+   ========================= */
 :root {
   line-height: 1.5;
-  padding: 0;
   font-weight: 400;
 
   font-synthesis: none;
-  font-display: swap;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* light theme */
   --bg: #ffffff;
   --surface: #ffffff;
   --text: #0f1724;
@@ -52,31 +58,38 @@
   --reverse: #ffffff;
 }
 
-a {
-  font-weight: 500;
-  text-decoration: inherit;
-}
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
+/* =========================
+   Base styles
+   ========================= */
 @layer base {
-  html {
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
     @apply font-sans;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display;
+  }
+
+  a {
+    font-weight: 500;
+    text-decoration: inherit;
   }
 }
 
+/* =========================
+   Components
+   ========================= */
 @layer components {
   .btn_primary {
     @apply font-bold cursor-pointer text-white py-2 px-4 rounded-full hover:scale-105 ease-in-out focus:outline-none;
@@ -87,6 +100,9 @@ h1 {
   }
 }
 
+/* =========================
+   Animations
+   ========================= */
 @keyframes slide-up {
   from {
     transform: translateY(0);

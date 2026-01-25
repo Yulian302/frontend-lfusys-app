@@ -15,7 +15,7 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="flex flex-col gap-6"
           >
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
               LFU Sys
             </h1>
             <p className="text-lg sm:text-xl opacity-80 leading-relaxed">
@@ -48,7 +48,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="rounded-2xl border border-border bg-card p-6 shadow-sm"
+            className="imageContainer"
           >
             <img
               src="/images/lfusys-arch.png"
@@ -106,7 +106,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <div className="imageContainer">
             <img
               src="/images/upload-flow.png"
               alt="Upload flow diagram"

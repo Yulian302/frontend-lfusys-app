@@ -1,8 +1,47 @@
-node_modules
-.git
-.gitignore
+# deps and build artifacts
+node_modules/
+dist/
+out/
+.tmp/
+.cache/
+
+# lockfiles
 npm-debug.log*
-.env
-dist
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# vite and others
+.vite/
+.vitepress/
+.eslintcache
+.npm/
+jest/
+coverage/
+cypress/
+
+# typescript build artifacts
+*.tsbuildinfo
+
+# local dev files
+.git/
+.gitignore
+.vscode/
+.idea/
+*.swp
+.DS_STORE
+Thumbs.db
+
+# env and config
+*.env*
+*.log
 .cache
 README.md
+
+# Docker-related files
+Dockerfile*
+.dockerignore
+docker-compose*.yml
+
+
+*lock

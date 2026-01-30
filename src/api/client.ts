@@ -4,7 +4,7 @@ import { authState } from "./authState"
 let isRefreshing = false
 
 export const gateApi = axios.create({
-  baseURL: import.meta.env.VITE_GATEWAY_API || "http://localhost:8080",
+  baseURL: import.meta.env.VITE_GATEWAY_API_URL || "http://localhost:8080",
   withCredentials: true,
 })
 
@@ -48,5 +48,5 @@ gateApi.interceptors.response.use(
     }
 
     return Promise.reject(error)
-  }
+  },
 )

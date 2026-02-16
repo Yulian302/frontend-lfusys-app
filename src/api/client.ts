@@ -4,12 +4,14 @@ import { authState } from "./authState"
 let isRefreshing = false
 
 export const gateApi = axios.create({
-  baseURL: import.meta.env.VITE_GATEWAY_API_URL || "http://localhost:8080",
+  baseURL:
+    import.meta.env.VITE_GATEWAY_API_URL || "http://localhost:8080/api/v1",
   withCredentials: true,
 })
 
 export const uploadsApi = axios.create({
-  baseURL: import.meta.env.VITE_UPLOADS_API_URL || "http://localhost:8081",
+  baseURL:
+    import.meta.env.VITE_UPLOADS_API_URL || "http://localhost:8081/api/v1",
   withCredentials: true,
 })
 

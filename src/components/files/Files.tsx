@@ -151,7 +151,10 @@ function FileTable({ files, onClick, onRefresh, disabled }: FileTableProps) {
                     {/* Actions Column */}
                     <td className="py-3 px-4">
                       <div className="flex justify-center">
-                        <DropDownMenu />
+                        <DropDownMenu
+                          fileId={row.file.file_id}
+                          refresh={() => onRefresh()}
+                        />
                       </div>
                     </td>
                   </tr>

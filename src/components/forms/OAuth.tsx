@@ -4,8 +4,11 @@ import { gateApi } from "../../api/client"
 
 const OAuth = () => {
   const handleGithubClick = async () => {
-    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID
-    const redirectUri = import.meta.env.VITE_GITHUB_REDIRECT_URI
+    const clientId =
+      import.meta.env.VITE_GITHUB_CLIENT_ID || "Ov23ligIk1n1MnNXDZWA"
+    const redirectUri =
+      import.meta.env.VITE_GITHUB_REDIRECT_URI ||
+      "http://localhost:8080/api/v1/auth/github/callback"
     const scope = "user:email"
     const response = await gateApi.post("/auth/state")
     const state = response.data.state
@@ -16,8 +19,12 @@ const OAuth = () => {
   }
 
   const handleGoogleClick = async () => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
-    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI
+    const clientId =
+      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+      "441188855882-r9hj22sh2939r6nj0jnjn1mo8tkoua6q.apps.googleusercontent.com"
+    const redirectUri =
+      import.meta.env.VITE_GOOGLE_REDIRECT_URI ||
+      "http://localhost:8080/api/v1/auth/google/callback"
     const googleScopes = [
       "https://www.googleapis.com/auth/userinfo.email",
       "https://www.googleapis.com/auth/userinfo.profile",

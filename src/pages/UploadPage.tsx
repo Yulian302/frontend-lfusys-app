@@ -29,12 +29,12 @@ const UploadPage = () => {
       }
       const r: AxiosResponse<UploadSessionResponse> = await gateApi.post(
         "/uploads/start",
-        uploadRequest
+        uploadRequest,
       )
 
       if (r.status === 200) {
-        const urls: string[] = r.data.upload_urls
         const chunks = createChunks(file)
+        const uploadId = r.data.upload_id
 
         try {
           setStatus("in_progress")
@@ -43,19 +43,24 @@ const UploadPage = () => {
             let uploadedChunks = 0
             const n = chunks.length
 
-            const wrappedUploadChunk = async (chunk: Blob, url: string) => {
-              await uploadChunk(chunk, url)
+            const wrappedUploadChunk = async (
+              uploadId: string,
+              chunk: Blob,
+              i: number,
+            ) => {
+              await uploadChunk(uploadId, chunk, i)
+
               uploadedChunks += 1
               onProgress(Math.round((uploadedChunks / n) * 100))
             }
 
             const promises = chunks.map((chunk, i) =>
-              wrappedUploadChunk(chunk, urls[i % urls.length])
+              wrappedUploadChunk(uploadId, chunk, i),
             )
 
             await Promise.all(promises)
           } else {
-            await uploadAll(chunks, urls)
+            await uploadAll(chunks, uploadId)
           }
 
           setStatus("completed")
@@ -72,7 +77,7 @@ const UploadPage = () => {
   const createChunks = (
     file: File,
     // chunkSize: number = 5 * 1024 * 1024
-    chunkSize: number = 140 * 1024
+    chunkSize: number = 140 * 1024,
   ): Blob[] => {
     const chunks: Blob[] = []
     let start = 0
@@ -85,23 +90,28 @@ const UploadPage = () => {
     return chunks
   }
 
-  const uploadAll = async (chunks: Blob[], urls: string[]) => {
-    const nUrls = urls.length
-    const promises = chunks.map((chunk, i) =>
-      uploadChunk(chunk, urls[i % nUrls])
-    )
+  const uploadAll = async (chunks: Blob[], uploadId: string) => {
+    const promises = chunks.map((chunk, i) => uploadChunk(uploadId, chunk, i))
 
     await Promise.all(promises)
   }
 
-  const uploadChunk: UploadChunk = async (chunk: Blob, url: string) => {
+  const uploadChunk: UploadChunk = async (
+    uploadId: string,
+    chunk: Blob,
+    i: number,
+  ) => {
     const chunkHash = await hashChunk(chunk)
     try {
-      const response = await uploadsApi.put(url, chunk, {
-        headers: {
-          "X-Chunk-Hash": chunkHash,
+      const response = await uploadsApi.put(
+        `/upload/${uploadId}/chunk/${i + 1}`,
+        chunk,
+        {
+          headers: {
+            "X-Chunk-Hash": chunkHash,
+          },
         },
-      })
+      )
       return response.status === 200 || response.status === 201
     } catch (error) {
       console.error("Chunk upload failed", error)

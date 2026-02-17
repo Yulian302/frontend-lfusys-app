@@ -7,17 +7,27 @@ import {
 import type React from "react"
 
 import { CiMenuKebab } from "react-icons/ci"
+import { gateApi } from "../../api/client"
 
 type FileMenuItemProps = {
   name: string
   hiddenName: string
   Icon: React.ElementType
+  handleClick: () => void
 }
 
-function FileMenuItem({ name, hiddenName, Icon }: FileMenuItemProps) {
+function FileMenuItem({
+  name,
+  hiddenName,
+  Icon,
+  handleClick,
+}: FileMenuItemProps) {
   return (
     <MenuItem>
-      <button className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-(--secondary)/30">
+      <button
+        className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-(--secondary)/30"
+        onClick={() => handleClick()}
+      >
         <Icon className="size-4 fill-white/30" />
         {name}
         <kbd className="ml-auto hidden font-sans text-xs text-(--primary) group-data-focus:inline">
@@ -28,22 +38,38 @@ function FileMenuItem({ name, hiddenName, Icon }: FileMenuItemProps) {
   )
 }
 
-export default function DropDownMenu() {
+type DropDownMenuProps = {
+  fileId: string
+  refresh: () => void
+}
+
+export default function DropDownMenu({ fileId, refresh }: DropDownMenuProps) {
   const menuItems: FileMenuItemProps[] = [
     {
       name: "Edit",
       hiddenName: "⌘E",
       Icon: PencilIcon,
+      handleClick: () => {},
     },
     {
       name: "Duplicate",
       hiddenName: "⌘D",
       Icon: Square2StackIcon,
+      handleClick: () => {},
     },
     {
       name: "Delete",
       hiddenName: "⌘B",
       Icon: TrashIcon,
+      handleClick: async () => {
+        try {
+          await gateApi.delete(`/files/${fileId}`)
+          console.log(`File ${fileId} deleted successfully`)
+          refresh()
+        } catch (error) {
+          console.error(`Failed to delete file ${fileId}:`, error)
+        }
+      },
     },
   ]
   const items = menuItems.map((item: FileMenuItemProps, idx: number) => (
@@ -52,6 +78,7 @@ export default function DropDownMenu() {
       hiddenName={item.hiddenName}
       Icon={item.Icon}
       key={idx}
+      handleClick={item.handleClick}
     />
   ))
   return (

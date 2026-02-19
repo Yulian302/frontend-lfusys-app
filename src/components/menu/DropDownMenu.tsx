@@ -25,10 +25,10 @@ function FileMenuItem({
   return (
     <MenuItem>
       <button
-        className="group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-(--secondary)/30"
+        className="text-(--reverse) group flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-(--secondary)/40"
         onClick={() => handleClick()}
       >
-        <Icon className="size-4 fill-white/30" />
+        <Icon className="size-4 fill-(--reverse)" />
         {name}
         <kbd className="ml-auto hidden font-sans text-xs text-(--primary) group-data-focus:inline">
           {hiddenName}

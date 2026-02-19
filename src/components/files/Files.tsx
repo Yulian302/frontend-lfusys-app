@@ -91,12 +91,13 @@ function FileTable({ files, onClick, onRefresh, disabled }: FileTableProps) {
         size={20}
         className={clsx(
           "cursor-pointer text-(--reverse) hover:scale-105 ease-in-out",
-          disabled && "text-gray-500 cursor-default! hover:scale-none"
+          disabled && "text-gray-500 cursor-default! hover:scale-none",
         )}
         onClick={() => onRefresh()}
       />
       <div className="border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full bg-white">
             <thead>
               <tr className="border-b bg-gray-50">
@@ -162,6 +163,40 @@ function FileTable({ files, onClick, onRefresh, disabled }: FileTableProps) {
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden">
+          {rows.map((row) => {
+            const Icon = getIcon(row.file.type || "default")
+            return (
+              <div
+                key={row.id}
+                onClick={() => onClick?.(row.file)}
+                className="bg-white border-b p-4 hover:bg-(--secondary) transition cursor-pointer group last:border-b-0"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <Icon className="text-xl text-blue-500 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-gray-900 truncate">
+                        {row.name}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {row.type} • {row.size} • {row.created}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="ml-2">
+                    <DropDownMenu
+                      fileId={row.file.file_id}
+                      refresh={() => onRefresh()}
+                    />
+                  </div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

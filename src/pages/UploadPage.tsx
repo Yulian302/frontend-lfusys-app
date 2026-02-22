@@ -26,6 +26,8 @@ const UploadPage = () => {
 
     try {
       const uploadRequest: UploadSessionRequest = {
+        file_name: file.name,
+        file_type: file.type,
         file_size: file.size,
       }
       const r: AxiosResponse<UploadSessionResponse> = await gateApi.post(

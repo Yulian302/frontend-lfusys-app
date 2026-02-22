@@ -1,13 +1,11 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react"
-import {
-  PencilIcon,
-  Square2StackIcon,
-  TrashIcon,
-} from "@heroicons/react/16/solid"
+import { ArrowDownTrayIcon, TrashIcon } from "@heroicons/react/16/solid"
 import type React from "react"
 
+import axios from "axios"
 import { CiMenuKebab } from "react-icons/ci"
 import { gateApi } from "../../api/client"
+import mapToFileExtension from "../../utils/mime"
 
 type FileMenuItemProps = {
   name: string
@@ -43,20 +41,80 @@ type DropDownMenuProps = {
   refresh: () => void
 }
 
+type DownloadFileResponse = {
+  url: string
+  file_name: string
+  file_type: string
+  expires_in_seconds: number
+}
+
+async function DownloadFile(fileId: string) {
+  try {
+    const response = await gateApi.get<DownloadFileResponse>(
+      `/files/${fileId}/download`,
+    )
+
+    if (response.status === 200 && response.data.url) {
+      const fileUrl = response.data.url
+      const filename = response.data.file_name
+      const filetype = mapToFileExtension(response.data.file_type)
+      console.log(filetype)
+
+      // Validate that we have both filename and filetype
+      if (!filename || !filetype) {
+        console.warn("Missing filename or filetype, using defaults")
+      }
+
+      const fileResponse = await axios.get(fileUrl, {
+        responseType: "blob",
+      })
+
+      const mimeType =
+        fileResponse.headers["content-type"] || "application/octet-stream"
+      const blob = new Blob([fileResponse.data], { type: mimeType })
+
+      const blobUrl = window.URL.createObjectURL(blob)
+
+      const cleanFilename = filename.replace(/\.[^/.]+$/, "")
+      const fullFilename = filetype ? `${cleanFilename}.${filetype}` : filename
+
+      const link = document.createElement("a")
+      link.href = blobUrl
+      link.download = fullFilename
+
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      setTimeout(() => {
+        window.URL.revokeObjectURL(blobUrl)
+      }, 100)
+
+      console.log(`File downloaded successfully: ${fullFilename}`)
+    } else {
+      throw new Error("No download URL received")
+    }
+  } catch (error) {
+    console.error(`Failed to download file ${fileId}:`, error)
+  }
+}
+
 export default function DropDownMenu({ fileId, refresh }: DropDownMenuProps) {
   const menuItems: FileMenuItemProps[] = [
     {
-      name: "Edit",
+      name: "Download",
       hiddenName: "⌘E",
-      Icon: PencilIcon,
-      handleClick: () => {},
+      Icon: ArrowDownTrayIcon,
+      handleClick: async () => {
+        await DownloadFile(fileId)
+      },
     },
-    {
-      name: "Duplicate",
-      hiddenName: "⌘D",
-      Icon: Square2StackIcon,
-      handleClick: () => {},
-    },
+    // {
+    //   name: "Duplicate",
+    //   hiddenName: "⌘D",
+    //   Icon: Square2StackIcon,
+    //   handleClick: () => {},
+    // },
     {
       name: "Delete",
       hiddenName: "⌘B",

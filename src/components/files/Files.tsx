@@ -9,26 +9,31 @@ import {
 } from "react-icons/ai"
 import { IoMdRefresh } from "react-icons/io"
 
-import DropDownMenu from "../menu/DropDownMenu"
 import clsx from "clsx"
+import DropDownMenu from "../menu/DropDownMenu"
 
 const getIcon = (type: string) => {
-  switch (type) {
-    case "pdf":
-      return AiFillFilePdf
-    case "image":
-      return AiFillFileImage
-    case "text":
-      return AiFillFileText
-    case "zip":
-      return AiFillFileZip
-    case "audio":
-      return AiFillAudio
-    case "code":
-      return AiFillCode
-    default:
-      return AiFillFile
+  if (/pdf/i.test(type)) {
+    return AiFillFilePdf
   }
+  if (/image|jpeg|jpg|png|gif|bmp|webp|svg/i.test(type)) {
+    return AiFillFileImage
+  }
+  if (/text|txt|plain/i.test(type)) {
+    return AiFillFileText
+  }
+  if (/zip|rar|tar|gz|7z|archive|compressed/i.test(type)) {
+    return AiFillFileZip
+  }
+  if (/audio|mp3|wav|ogg|m4a|flac|aac/i.test(type)) {
+    return AiFillAudio
+  }
+  if (
+    /code|javascript|python|java|html|css|js|ts|jsx|tsx|json|xml/i.test(type)
+  ) {
+    return AiFillCode
+  }
+  return AiFillFile
 }
 
 const formatFileSize = (bytes: number): string => {
@@ -59,6 +64,13 @@ interface FileTableProps {
   disabled: boolean
 }
 
+function prettifyName(name: string) {
+  if (name === "") return "Unnamed"
+
+  const lastDotIndex = name.lastIndexOf(".")
+  return name.substring(0, lastDotIndex)
+}
+
 function FileTable({ files, onClick, onRefresh, disabled }: FileTableProps) {
   if (files.length === 0) {
     return (
@@ -76,9 +88,9 @@ function FileTable({ files, onClick, onRefresh, disabled }: FileTableProps) {
     { key: "actions", label: "Actions", width: "w-10" },
   ]
 
-  const rows = files.map((file) => ({
+  const rows = files.map((file: FileInfo) => ({
     id: file.file_id,
-    name: file.name || "Unnamed",
+    name: prettifyName(file.name),
     type: file.type || "Unspecified",
     size: formatFileSize(file.file_size),
     created: formatDate(file.created_at),

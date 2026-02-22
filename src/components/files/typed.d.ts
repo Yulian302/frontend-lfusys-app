@@ -1,8 +1,8 @@
 interface FileInfo {
   file_id: string
-  name?: string
+  name: string
+  type: string
   file_size: number
-  type?: string
   created_at: string
 }
 

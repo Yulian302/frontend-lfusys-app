@@ -1,8 +1,8 @@
-import { isAxiosError } from "axios"
 import { createContext, useContext, useEffect, useState } from "react"
 import { gateApi } from "../api/client"
 
 import { retry } from "../api/retry"
+import { isAxiosError } from "axios"
 
 interface AuthContextType {
   isAuthenticated: boolean
@@ -21,40 +21,48 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [username, setUsername] = useState("")
 
   useEffect(() => {
+    const abortController = new AbortController()
+    let isMounted = true
+
     const checkAuth = async () => {
       try {
-        const response = await gateApi.get("/auth/me")
-        setUsername(response.data.username)
-        setIsAuthenticated(true)
-      } catch (error: unknown) {
-        if (
-          isAxiosError(error) &&
-          error.response?.status === 401 &&
-          error.response?.data?.message?.includes("token_expired")
-        ) {
-          try {
-            await gateApi.post("/auth/refresh")
+        const response = await gateApi.get("/auth/me", {
+          signal: abortController.signal,
+          timeout: 2000, // 2s for auth
+        })
 
-            const retryResponse = await gateApi.get("/auth/me")
-            setUsername(retryResponse.data.username)
-            setIsAuthenticated(true)
-          } catch (refreshError) {
-            console.log("Refresh failed:", refreshError)
-            setIsAuthenticated(false)
-          }
+        if (isMounted) {
+          setUsername(response.data.username)
+          setIsAuthenticated(true)
+          setIsLoading(false)
         }
-        setIsAuthenticated(false)
+      } catch (error) {
+        if (isAxiosError(error) && error.code === "ERR_CANCELED") {
+          return
+        }
+
+        if (isMounted) {
+          setIsAuthenticated(false)
+        }
       } finally {
-        setIsLoading(false)
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
+
     checkAuth()
+
+    return () => {
+      isMounted = false
+      abortController.abort()
+    }
   }, [])
 
   const login = async (email: string, password: string) => {
     const response = await retry(
       () => gateApi.post("/auth/login", { email, password }),
-      { maxAttempts: 3, delayMs: 300 }
+      { maxAttempts: 3, delayMs: 300 },
     )
     if (response.status === 200) {
       const meResponse = await gateApi.get("/auth/me")
@@ -76,7 +84,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       {
         maxAttempts: 3,
         delayMs: 300,
-      }
+      },
     )
     if (response.status === 201) {
       return true

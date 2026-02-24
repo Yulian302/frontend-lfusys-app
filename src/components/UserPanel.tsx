@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import UserMenu from "./DropDown"
 import ThemeToggle from "./ThemeToggle"
-import { useAuth } from "../contexts/AuthContext"
+import { useAuth } from "../hooks/useAuth"
 import { useNavigate } from "react-router-dom"
 import AuthDialog from "./forms/AuthDialog"
 

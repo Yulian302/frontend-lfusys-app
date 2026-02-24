@@ -3,6 +3,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline"
 import LoginForm from "./Login"
 import OAuth from "./OAuth"
 import RegisterForm from "./Register"
+import { useState } from "react"
 
 interface LoginDialogProps {
   isOpen: boolean
@@ -19,6 +20,12 @@ export default function AuthDialog({
   isLogin,
   changeAuthType,
 }: LoginDialogProps) {
+  const [error, setError] = useState<string | undefined>(undefined)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [activeProvider, setActiveProvider] = useState<
+    "github" | "google" | null
+  >(null)
+
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div
@@ -50,7 +57,18 @@ export default function AuthDialog({
             </p>
           </div>
 
-          {isLogin ? <LoginForm /> : <RegisterForm />}
+          {isLogin ? (
+            <LoginForm
+              error={error}
+              setError={setError}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+              activeProvider={activeProvider}
+              setActiveProvider={setActiveProvider}
+            />
+          ) : (
+            <RegisterForm error={error} setError={setError} />
+          )}
           <div className="px-8 pb-6">
             {isLogin && (
               <>
@@ -67,7 +85,13 @@ export default function AuthDialog({
                     </div>
                   </div>
                 </div>
-                <OAuth />
+                <OAuth
+                  setError={setError}
+                  isLoading={isLoading}
+                  setIsLoading={setIsLoading}
+                  activeProvider={activeProvider}
+                  setActiveProvider={setActiveProvider}
+                />
               </>
             )}
 

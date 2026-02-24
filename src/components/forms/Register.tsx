@@ -1,8 +1,8 @@
-import { useState } from "react"
-import { useForm, type SubmitHandler } from "react-hook-form"
+import { useEffect, useState } from "react"
+import { useForm, type FieldError, type SubmitHandler } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
 import { handleError } from "../../api/errors"
-import { useAuth } from "../../contexts/AuthContext"
+import { useAuth } from "../../hooks/useAuth"
 import FormTemplate from "./FormTemplate"
 import {
   CheckBoxField,
@@ -11,11 +11,15 @@ import {
   type RegisterFormIF,
 } from "./Shared"
 
-const RegisterForm = () => {
+type RegisterFormProps = {
+  error?: string | FieldError
+  setError: (err?: string) => void
+}
+
+const RegisterForm = ({ error, setError }: RegisterFormProps) => {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | undefined>(undefined)
 
   const { register: signup, login } = useAuth()
 
@@ -36,9 +40,9 @@ const RegisterForm = () => {
 
   const onSubmit: SubmitHandler<RegisterFormIF> = async (data) => {
     setError(undefined)
+    setLoading(true)
 
     try {
-      setLoading(true)
       const isRegistered = await signup(data.name, data.email, data.password)
       if (!isRegistered) {
         setError("Registration failed. Please try again.")
@@ -58,6 +62,12 @@ const RegisterForm = () => {
 
   const password = watch("password")
   const showPassword = watch("Show Password")
+
+  useEffect(() => {
+    return () => {
+      setError(undefined)
+    }
+  }, [setError])
 
   return (
     <FormTemplate onSubmit={handleSubmit(onSubmit)}>

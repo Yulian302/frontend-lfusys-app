@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import "./App.css"
 import ProtectedRoute from "./components/ProtectedRoute"
-import { AuthProvider } from "./contexts/AuthContext"
+import { AuthProvider } from "./providers/AuthProvider"
 import FilesPage from "./pages/FilesPage"
 import HomePage from "./pages/HomePage"
 import PageNotFound from "./pages/PageNotFound"

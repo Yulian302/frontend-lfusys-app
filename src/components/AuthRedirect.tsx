@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom"
-import { useAuth } from "../contexts/AuthContext"
+import { useAuth } from "../hooks/useAuth"
 import { SquareLoader } from "react-spinners"
 
 const AuthRedirect = ({ children }: { children: React.ReactNode }) => {

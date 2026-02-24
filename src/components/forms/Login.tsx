@@ -1,7 +1,7 @@
-import { useState } from "react"
-import { useForm, type SubmitHandler } from "react-hook-form"
+import { useEffect } from "react"
+import { useForm, type FieldError, type SubmitHandler } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
-import { useAuth } from "../../contexts/AuthContext"
+import { useAuth } from "../../hooks/useAuth"
 
 import { handleError } from "../../api/errors"
 import FormTemplate from "./FormTemplate"
@@ -12,11 +12,24 @@ import {
   type LoginFormIF,
 } from "./Shared"
 
-const LoginForm = () => {
-  const navigate = useNavigate()
+type LoginFormProps = {
+  error?: string | FieldError
+  setError: (err?: string) => void
+  isLoading: boolean
+  setIsLoading: (val: boolean) => void
+  activeProvider: "github" | "google" | null
+  setActiveProvider: (prov: "github" | "google" | null) => void
+}
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | undefined>(undefined)
+const LoginForm = ({
+  error,
+  setError,
+  isLoading,
+  setIsLoading,
+  activeProvider,
+  setActiveProvider,
+}: LoginFormProps) => {
+  const navigate = useNavigate()
 
   const { login } = useAuth()
 
@@ -35,8 +48,10 @@ const LoginForm = () => {
 
   const onSubmit: SubmitHandler<LoginFormIF> = async (data) => {
     setError(undefined)
+    setActiveProvider(null)
+    setIsLoading(true)
+
     try {
-      setLoading(true)
       const isLoggedIn = await login(data.email, data.password)
       if (isLoggedIn) {
         navigate("/upload")
@@ -44,11 +59,17 @@ const LoginForm = () => {
     } catch (err: unknown) {
       handleError(err, setError)
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
   const showPassword = watch("Show Password")
+
+  useEffect(() => {
+    return () => {
+      setError(undefined)
+    }
+  }, [setError])
 
   return (
     <FormTemplate onSubmit={handleSubmit(onSubmit)}>
@@ -90,13 +111,13 @@ const LoginForm = () => {
       <div className="flex flex-col gap-2 sm:flex-row items-center justify-between">
         <button
           className={`bg-blue-500 ${
-            loading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
+            isLoading ? "opacity-80 cursor-not-allowed" : "hover:bg-blue-700"
           }
             btn_primary hover:bg-blue-500/10`}
           type="submit"
-          disabled={loading}
+          disabled={isLoading}
         >
-          {loading ? "Signing in..." : "Sign In"}
+          {isLoading && activeProvider === null ? "Signing in..." : "Sign In"}
         </button>
       </div>
     </FormTemplate>

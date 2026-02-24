@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
-import { Upload, ShieldCheck, Layers, Cloud } from "lucide-react"
+import { Upload, Hammer, ShieldCheck, Layers, Cloud } from "lucide-react"
 
 export default function Home() {
   return (
@@ -29,17 +29,17 @@ export default function Home() {
             </p>
             <div className="flex gap-4 pt-2">
               <Link
-                to="/docs"
-                className="px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition"
+                to="#"
+                className="text-gray-500 px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition"
               >
                 Read the docs
               </Link>
-              <Link
-                to="/architecture"
+              <a
+                href="#architecture"
                 className="px-6 py-3 rounded-2xl border border-border hover:bg-muted transition"
               >
                 View architecture
-              </Link>
+              </a>
             </div>
           </motion.div>
 
@@ -51,7 +51,7 @@ export default function Home() {
             className="imageContainer"
           >
             <img
-              src="/images/lfusys-arch.png"
+              src="/svgs/lfusys-arch.svg"
               alt="LFU Sys architecture overview"
               className="w-full h-auto rounded-xl"
             />
@@ -61,11 +61,16 @@ export default function Home() {
 
       {/* Core principles */}
       <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
           <Feature
             icon={<Upload />}
             title="Parallel uploads"
             description="Large files are split into chunks and uploaded concurrently for maximum throughput."
+          />
+          <Feature
+            icon={<Hammer />}
+            title="Smart Assembly"
+            description="After upload completes, file chunks are automatically assembled using either multipart upload or streaming, based on file size."
           />
           <Feature
             icon={<Layers />}
@@ -89,16 +94,21 @@ export default function Home() {
       <section className="bg-muted/30">
         <div className="max-w-6xl mx-auto px-6 py-20 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="flex flex-col gap-4">
-            <h2 className="text-3xl font-semibold">How LFU Sys works</h2>
+            <h2 className="text-3xl font-semibold" id="architecture">
+              How LFU Sys works
+            </h2>
             <p className="opacity-80 leading-relaxed">
               The frontend initiates an upload session through the Gateway.
               Files are chunked client-side and uploaded in parallel to
               dedicated upload workers.
             </p>
             <p className="opacity-80 leading-relaxed">
-              Each worker validates and persists chunks to object storage. Once
-              complete, the session is finalized asynchronously using a
-              distributed queue.
+              Each worker validates, persists chunks to object storage and sends
+              upload events to a distributed queue.
+            </p>
+            <p className="opacity-80 leading-relaxed">
+              Sessions service consumes upload events, updates upload status and
+              assembles a file using multipart upload or streaming.
             </p>
             <p className="opacity-70 leading-relaxed">
               This separation of concerns allows LFU Sys to scale uploads,
@@ -108,7 +118,7 @@ export default function Home() {
 
           <div className="imageContainer">
             <img
-              src="/images/upload-flow.png"
+              src="/svgs/service-dependency-diagram.svg"
               alt="Upload flow diagram"
               className="w-full h-auto rounded-xl"
             />

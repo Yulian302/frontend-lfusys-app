@@ -35,6 +35,8 @@ interface InputProps<T extends LoginFormIF | RegisterFormIF | ExtraFormIF> {
   error?: FieldError
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   validate?: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  pattern?: any
 }
 
 export function InputField<T extends LoginFormIF | RegisterFormIF>({
@@ -47,6 +49,7 @@ export function InputField<T extends LoginFormIF | RegisterFormIF>({
   placeholder,
   error,
   validate,
+  pattern,
 }: InputProps<T>) {
   return (
     <div className="mb-4">
@@ -58,7 +61,7 @@ export function InputField<T extends LoginFormIF | RegisterFormIF>({
           "shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline",
           error && "border border-red-700",
           error && "border-l-4 border-l-red-500 pl-3 rounded",
-          "focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]"
+          "focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]",
         )}
         id={label}
         type={type}
@@ -68,6 +71,7 @@ export function InputField<T extends LoginFormIF | RegisterFormIF>({
           minLength,
           maxLength,
           validate,
+          pattern,
         })}
         aria-invalid={error ? "true" : "false"}
       />
@@ -76,7 +80,7 @@ export function InputField<T extends LoginFormIF | RegisterFormIF>({
 }
 
 export function CheckBoxField<
-  T extends LoginFormIF | RegisterFormIF | ExtraFormIF
+  T extends LoginFormIF | RegisterFormIF | ExtraFormIF,
 >({ label, required, register }: InputProps<T>) {
   return (
     <div className="text-lg flex items-center gap-2 mb-2">

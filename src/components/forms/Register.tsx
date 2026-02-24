@@ -103,6 +103,29 @@ const RegisterForm = ({ error, setError }: RegisterFormProps) => {
           message: "Email is too long. Please provide a shorter value",
         }}
         error={errors.email}
+        pattern={{
+          value:
+            /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+          message: "Please enter a valid email address",
+        }}
+        validate={{
+          noSpaces: (value: string) =>
+            !value.includes(" ") || "Email cannot contain spaces",
+          hasAt: (value: string) =>
+            value.includes("@") || "Email must contain @ symbol",
+          hasDomain: (value: string) => {
+            const parts = value.split("@")
+            return parts.length === 2 && parts[1].includes(".")
+              ? true
+              : "Email must have a valid domain (e.g., .com)"
+          },
+          noConsecutiveDots: (value: string) =>
+            !value.includes("..") || "Email cannot contain consecutive dots",
+          validLocalPart: (value: string) => {
+            const localPart = value.split("@")[0]
+            return localPart?.length <= 64 || "Email username is too long"
+          },
+        }}
       />
       <ErrorField error={errors.email} />
 

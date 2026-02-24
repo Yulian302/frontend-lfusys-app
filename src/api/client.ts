@@ -7,12 +7,14 @@ export const gateApi = axios.create({
   baseURL:
     import.meta.env.VITE_GATEWAY_API_URL || "http://localhost:8080/api/v1",
   withCredentials: true,
+  timeout: 5000, // 5 seconds
 })
 
 export const uploadsApi = axios.create({
   baseURL:
     import.meta.env.VITE_UPLOADS_API_URL || "http://localhost:8081/api/v1",
   withCredentials: true,
+  timeout: 5000, // 5 seconds
 })
 
 gateApi.interceptors.response.use(
@@ -39,7 +41,9 @@ gateApi.interceptors.response.use(
       isRefreshing = true
 
       try {
-        await gateApi.post("/auth/refresh")
+        await gateApi.post("/auth/refresh", null, {
+          timeout: 2000, // 2s for auth
+        })
         isRefreshing = false
         return gateApi(originalRequest)
       } catch {

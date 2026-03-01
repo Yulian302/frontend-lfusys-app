@@ -30,13 +30,13 @@ export default function Home() {
             <div className="flex gap-4 pt-2">
               <Link
                 to="#"
-                className="text-gray-500 px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition"
+                className="text-gray-500 text-center px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition"
               >
                 Read the docs
               </Link>
               <a
                 href="#architecture"
-                className="px-6 py-3 rounded-2xl border border-border hover:bg-muted transition"
+                className="text-center px-6 py-3 rounded-2xl border border-border hover:bg-muted transition"
               >
                 View architecture
               </a>

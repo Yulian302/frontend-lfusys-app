@@ -98,7 +98,7 @@ function FileTable({ files, onClick, onRefresh, disabled }: FileTableProps) {
   }))
 
   return (
-    <div className="h-max m-12 w-full self-start flex flex-col gap-2">
+    <div className="h-max sm:m-12 w-full self-start flex flex-col gap-2">
       <IoMdRefresh
         size={20}
         className={clsx(
@@ -109,7 +109,7 @@ function FileTable({ files, onClick, onRefresh, disabled }: FileTableProps) {
       />
       <div className="border rounded-lg overflow-hidden">
         {/* Desktop Table View */}
-        <div className="hidden md:block overflow-x-auto">
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full bg-white">
             <thead>
               <tr className="border-b bg-gray-50">
@@ -178,7 +178,7 @@ function FileTable({ files, onClick, onRefresh, disabled }: FileTableProps) {
         </div>
 
         {/* Mobile Card View */}
-        <div className="md:hidden">
+        <div className="lg:hidden">
           {rows.map((row) => {
             const Icon = getIcon(row.file.type || "default")
             return (

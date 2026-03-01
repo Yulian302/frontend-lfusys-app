@@ -43,18 +43,24 @@ const UploadPage = () => {
           setStatus("in_progress")
 
           if (onProgress) {
-            let uploadedChunks = 0
-            const n = chunks.length
+            // Track bytes uploaded per chunk for smooth progress
+            const chunkProgress = new Array(chunks.length).fill(0)
+            
+            const updateProgress = () => {
+              const totalUploaded = chunkProgress.reduce((sum, val) => sum + val, 0)
+              const percentage = Math.round((totalUploaded / file.size) * 100)
+              onProgress(percentage)
+            }
 
             const wrappedUploadChunk = async (
               uploadId: string,
               chunk: Blob,
               i: number,
             ) => {
-              await uploadChunk(uploadId, chunk, i)
-
-              uploadedChunks += 1
-              onProgress(Math.round((uploadedChunks / n) * 100))
+              await uploadChunk(uploadId, chunk, i, (loaded) => {
+                chunkProgress[i] = loaded
+                updateProgress()
+              })
             }
 
             const promises = chunks.map((chunk, i) =>
@@ -129,10 +135,11 @@ const UploadPage = () => {
     await Promise.all(workers)
   }
 
-  const uploadChunk: UploadChunk = async (
+  const uploadChunk = async (
     uploadId: string,
     chunk: Blob,
     i: number,
+    onChunkProgress?: (loaded: number) => void,
   ) => {
     const chunkHash = await hashChunk(chunk)
     try {
@@ -142,6 +149,11 @@ const UploadPage = () => {
         {
           headers: {
             "X-Chunk-Hash": chunkHash,
+          },
+          onUploadProgress: (progressEvent) => {
+            if (onChunkProgress && progressEvent.loaded) {
+              onChunkProgress(progressEvent.loaded)
+            }
           },
         },
       )

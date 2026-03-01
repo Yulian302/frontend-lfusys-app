@@ -4,7 +4,7 @@ import UploadLoader from "./UploadLoader"
 type Props = {
   onUpload?: (
     file: File,
-    onProgress?: (p: number) => void
+    onProgress?: (p: number) => void,
   ) => Promise<void> | void
   isUploading?: boolean
   status: string | null
@@ -150,7 +150,7 @@ export default function UploadForm({
         onDrop={onDrop}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
-        className={`border-2 rounded-lg p-6 flex items-center gap-4 transition-colors ${
+        className={`text-lg sm:text-sm border-2 rounded-lg p-6 flex flex-col sm:flex-row items-center gap-4 transition-colors ${
           dragActive
             ? "border-blue-400 bg-blue-50"
             : "border-dashed border-gray-300 bg-white"
@@ -181,13 +181,13 @@ export default function UploadForm({
           </svg>
         </div>
 
-        <div className="flex-1">
-          <div className="text-sm text-gray-600">
+        <div className="flex-1 text-center sm:text-left">
+          <div className="text-gray-600">
             {dragActive
               ? "Drop file here to attach"
               : "Drag & drop a file here, or click to browse"}
           </div>
-          <div className="mt-2 text-xs text-gray-400">
+          <div className="mt-2 text-sm sm:text-xs text-gray-400">
             Supports single file upload. Image preview shown for images.
           </div>
         </div>
@@ -199,7 +199,7 @@ export default function UploadForm({
               e.stopPropagation()
               openFilePicker()
             }}
-            className="px-3 py-1.5 bg-(--primary) text-sm rounded border cursor-pointer"
+            className="px-6 py-3 sm:px-3 sm:py-1.5 bg-(--primary) font-semibold rounded border cursor-pointer"
           >
             Browse
           </button>

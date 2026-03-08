@@ -14,7 +14,7 @@ export const uploadsApi = axios.create({
   baseURL:
     import.meta.env.VITE_UPLOADS_API_URL || "http://localhost:8081/api/v1",
   withCredentials: true,
-  timeout: 5000, // 5 seconds
+  timeout: 180000, // 3 mins for slow chunk uploads
 })
 
 gateApi.interceptors.response.use(

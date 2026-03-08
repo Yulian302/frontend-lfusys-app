@@ -25,6 +25,11 @@ const FilesPage = () => {
       }
     } catch (error) {
       if (isAxiosError(error)) {
+        if (!navigator.onLine) {
+          setError("You are offline. Check your internet connection.")
+          return
+        }
+
         if (error.response?.status === 429) {
           setRateLimited(true)
           const retryAfter = Number(error.response.headers["retry-after"]) || 5
@@ -32,6 +37,10 @@ const FilesPage = () => {
           setTimeout(() => {
             setRateLimited(false)
           }, retryAfter * 1000)
+        }
+
+        if (error.code === "ERR_NETWORK") {
+          setError("Network error. Please try again.")
         }
       }
       if (mounted) {
@@ -76,9 +85,9 @@ const FilesPage = () => {
           <p className="mt-4 text-gray-500">Loading your files...</p>
         </div>
       ) : error ? (
-        <div className="flex flex-col items-center justify-center h-64">
+        <div className="flex flex-col items-center justify-center h-64 w-full">
           <div className="text-red-500 mb-2">⚠️</div>
-          <p className="text-gray-700">{error}</p>
+          <p className="text-gray-700 text-center">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"

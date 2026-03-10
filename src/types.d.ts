@@ -8,6 +8,13 @@ type UploadSessionRequest = {
   file_size: number
 }
 
+type UploadSession = {
+  uploadId: string
+  fileName: string
+  fileSize: number
+  chunkSize: number
+}
+
 type UploadChunk = (
   uploadId: string,
   chunk: Blob,

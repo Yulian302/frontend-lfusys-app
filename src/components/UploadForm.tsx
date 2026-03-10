@@ -49,12 +49,34 @@ export default function UploadForm({
   }
 
   function handleFiles(files: FileList | null) {
-    setError(null)
-
     if (!files || files.length === 0) return
-    setFile(files[0])
+
+    const selected = files[0]
+
+    const sRaw = localStorage.getItem("upload_session")
+    if (sRaw) {
+      const s: UploadSession = JSON.parse(sRaw)
+
+      const sameFile =
+        selected.name === s.fileName && selected.size === s.fileSize
+
+      if (!sameFile) {
+        setError(
+          "Selected file does not match the paused upload. Please choose the same file.",
+        )
+        setFile(selected)
+        return
+      }
+    }
+
+    setFile(selected)
     setProgress(0)
-    setStatus(null)
+
+    if (status === "resume_pending") {
+      handleUpload()
+    } else {
+      setStatus(null)
+    }
   }
 
   function onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -113,6 +135,19 @@ export default function UploadForm({
     }
   }
 
+  function handleCancelResume() {
+    localStorage.removeItem("upload_session")
+
+    if (inputRef.current) {
+      inputRef.current.value = ""
+    }
+
+    setFile(null)
+    setProgress(0)
+    setError(null)
+    setStatus(null)
+  }
+
   function handleRemove(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation()
 
@@ -145,6 +180,16 @@ export default function UploadForm({
         aria-hidden
         disabled={uploading}
       />
+
+      {status === "resume_pending" && !file && (
+        <div className="mb-4 p-4 rounded-lg border border-yellow-300 bg-yellow-50 text-yellow-800 text-sm">
+          <div className="font-semibold">Upload paused</div>
+          <div className="mt-1">
+            An unfinished upload was detected. Please reselect the same file to
+            resume the upload.
+          </div>
+        </div>
+      )}
 
       <div
         onDrop={onDrop}
@@ -254,13 +299,25 @@ export default function UploadForm({
               )}
 
               <div className="">
-                <UploadLoader
-                  handleUpload={handleUpload}
-                  uploading={uploading}
-                  handleRemove={handleRemove}
-                  progress={progress}
-                  status={status}
-                />
+                {status === "resume_pending" ? (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleCancelResume()
+                    }}
+                    className="mt-3 px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white"
+                  >
+                    Discard Upload
+                  </button>
+                ) : (
+                  <UploadLoader
+                    handleUpload={handleUpload}
+                    uploading={uploading}
+                    handleRemove={handleRemove}
+                    progress={progress}
+                    status={status}
+                  />
+                )}
               </div>
             </div>
           </div>

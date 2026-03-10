@@ -1,5 +1,5 @@
 import { type AxiosResponse } from "axios"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { gateApi, uploadsApi } from "../api/client"
 import UploadForm from "../components/UploadForm"
 import UserPanel from "../components/UserPanel"
@@ -18,13 +18,72 @@ async function hashChunk(chunk: Blob): Promise<string> {
 const UploadPage = () => {
   const [isUploading, setIsUploading] = useState(false)
   const [status, setStatus] = useState<string | null>(null)
+  const [uploadedChunks, setUploadedChunks] = useState<number[]>([])
   const chunkSize = import.meta.env.DEV ? 128 * 1024 : 5 * 1024 * 1024 // 128KB for dev, 5MB for prod
+
+  // Recover upload session on page load
+  useEffect(() => {
+    const sRaw = localStorage.getItem("upload_session")
+    if (!sRaw) return
+
+    const s: UploadSession = JSON.parse(sRaw)
+
+    fetchUploadedChunks(s.uploadId)
+    setStatus("resume_pending")
+  }, [])
+
+  // Retrieve chunks that already exist
+  const fetchUploadedChunks = async (uploadId: string): Promise<void> => {
+    try {
+      const response = await gateApi.get(`/uploads/${uploadId}/chunks`)
+
+      if (response.status === 200) {
+        setUploadedChunks(response.data.chunks || [])
+      }
+    } catch (err) {
+      console.log("Failed to fetch unfinished chunks: ", err)
+    }
+  }
 
   const startUpload = async (file: File, onProgress?: (p: number) => void) => {
     if (isUploading) return
     setIsUploading(true)
 
     try {
+      // Resume upload
+      const existingSessionRaw = localStorage.getItem("upload_session")
+      if (existingSessionRaw) {
+        const s: UploadSession = JSON.parse(existingSessionRaw)
+
+        if (file.name === s.fileName && file.size === s.fileSize) {
+          const chunks = createChunks(file, s.chunkSize)
+
+          const missingIndexes = chunks
+            .map((_, i) => i)
+            .filter((i) => !uploadedChunks.includes(i + 1))
+
+          if (missingIndexes.length === 0) {
+            setStatus("completed")
+            localStorage.removeItem("upload_session")
+            return
+          }
+
+          await uploadChunksByIndexes(
+            chunks,
+            missingIndexes,
+            s.uploadId,
+            onProgress,
+            file.size,
+          )
+
+          setStatus("in_progress")
+          localStorage.removeItem("upload_session")
+          return
+        }
+      }
+
+      // Otherwise start new upload
+
       const uploadRequest: UploadSessionRequest = {
         file_name: file.name,
         file_type: file.type,
@@ -36,8 +95,16 @@ const UploadPage = () => {
       )
 
       if (r.status === 200) {
-        const chunks = createChunks(file, chunkSize)
         const uploadId = r.data.upload_id
+        const chunks = createChunks(file, chunkSize)
+
+        const newSession: UploadSession = {
+          uploadId,
+          fileName: file.name,
+          fileSize: file.size,
+          chunkSize,
+        }
+        localStorage.setItem("upload_session", JSON.stringify(newSession))
 
         try {
           setStatus("in_progress")
@@ -45,9 +112,15 @@ const UploadPage = () => {
           if (onProgress) {
             // Track bytes uploaded per chunk for smooth progress
             const chunkProgress = new Array(chunks.length).fill(0)
-            
+            uploadedChunks.forEach((i) => {
+              chunkProgress[i - 1] = chunks[i - 1].size
+            })
+
             const updateProgress = () => {
-              const totalUploaded = chunkProgress.reduce((sum, val) => sum + val, 0)
+              const totalUploaded = chunkProgress.reduce(
+                (sum, val) => sum + val,
+                0,
+              )
               const percentage = Math.round((totalUploaded / file.size) * 100)
               onProgress(percentage)
             }
@@ -73,6 +146,7 @@ const UploadPage = () => {
           }
 
           setStatus("completed")
+          localStorage.removeItem("upload_session")
         } catch (error) {
           console.log(error)
           setStatus("failed")
@@ -117,6 +191,45 @@ const UploadPage = () => {
     throw lastError
   }
 
+  const uploadChunksByIndexes = async (
+    chunks: Blob[],
+    indexes: number[],
+    uploadId: string,
+    onProgress?: (p: number) => void,
+    fileSize?: number,
+    limit = 5,
+  ) => {
+    let cursor = 0
+
+    const chunkProgress = new Array(chunks.length).fill(0)
+
+    const updateProgress = () => {
+      if (!onProgress || !fileSize) return
+
+      const total = chunkProgress.reduce((a, b) => a + b, 0)
+      onProgress(Math.round((total / fileSize) * 100))
+    }
+
+    const workers = Array.from({ length: limit }).map(async () => {
+      while (true) {
+        const current = cursor++
+
+        if (current >= indexes.length) break
+
+        const i = indexes[current]
+
+        await retryChunk(() =>
+          uploadChunk(uploadId, chunks[i], i, (loaded) => {
+            chunkProgress[i] = loaded
+            updateProgress()
+          }),
+        )
+      }
+    })
+
+    await Promise.all(workers)
+  }
+
   const uploadAllWithLimit = async (
     chunks: Blob[],
     uploadId: string,
@@ -132,7 +245,12 @@ const UploadPage = () => {
       }
     })
 
-    await Promise.all(workers)
+    try {
+      await Promise.all(workers)
+      localStorage.removeItem("upload_session")
+    } catch (err) {
+      console.error("Upload failed: ", err)
+    }
   }
 
   const uploadChunk = async (
